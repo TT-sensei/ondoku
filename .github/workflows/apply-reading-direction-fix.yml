@@ -1,0 +1,63 @@
+name: Apply reading direction fix
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply Japanese reading direction changes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = 'grid-template-columns:minmax(0,1fr) 320px}.recPanel{justify-content:center;padding:24px 16px}'
+          new = 'grid-template-columns:320px minmax(0,1fr)}.recordBody>.stage{grid-column:2;grid-row:1}.recordBody>.recPanel{grid-column:1;grid-row:1}.recPanel{justify-content:center;padding:24px 16px}'
+          if old not in s:
+              raise SystemExit('landscape layout target not found')
+          s = s.replace(old, new, 1)
+          old = '<button id="prev" aria-label="前のページ">‹</button><button id="next" aria-label="次のページ">›</button>'
+          new = '<button id="prev" aria-label="次のページ">←</button><button id="next" aria-label="前のページ">→</button>'
+          if old not in s:
+              raise SystemExit('pager buttons target not found')
+          s = s.replace(old, new, 1)
+          old = "$('prev').disabled=state.pageIndex===0;$('next').disabled=state.pageIndex===state.selected.length-1;$('nextDuring').disabled=state.pageIndex===state.selected.length-1"
+          new = "$('prev').disabled=state.pageIndex===state.selected.length-1;$('next').disabled=state.pageIndex===0;$('nextDuring').disabled=state.pageIndex===state.selected.length-1"
+          if old not in s:
+              raise SystemExit('pager disabled target not found')
+          s = s.replace(old, new, 1)
+          old = "$('prev').onclick=()=>changePage(-1);$('next').onclick=()=>changePage(1);$('nextDuring').onclick=()=>changePage(1);"
+          new = "$('prev').onclick=()=>changePage(1);$('next').onclick=()=>changePage(-1);$('nextDuring').onclick=()=>changePage(1);"
+          if old not in s:
+              raise SystemExit('pager click target not found')
+          s = s.replace(old, new, 1)
+          old = '<button id="nextDuring">次のページ →</button>'
+          new = '<button id="nextDuring">次のページ ←</button>'
+          if old not in s:
+              raise SystemExit('during-record button target not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "音読画面を日本語の読み方向に合わせて調整"
+          git push
+      - name: Remove temporary workflow
+        shell: bash
+        run: |
+          git rm .github/workflows/apply-reading-direction-fix.yml
+          git commit -m "Remove temporary direction fix workflow"
+          git push
