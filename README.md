@@ -116,4 +116,4 @@
 
 ## ページめくりライブラリ
 
-音読画面のページめくりには、StPageFlip（page-flip）を利用しています。ライブラリ本体は `vendor/page-flip.browser.js` に同梱し、外部CDNや実行時の外部通信を必要としません。縦書き教材に合わせ、次のページへは左側からめくる操作にしています。音読画面の左右下にある丸印が、ページをめくる場所の目印です。ライセンスは `vendor/page-flip-LICENSE.txt` を参照してください（MIT License、Copyright (c) 2020 Nodlik）。
+音読画面のページめくりには、StPageFlip（page-flip）を利用しています。ライブラリ本体は `vendor/page-flip.browser.js` に同梱し、外部CDNや実行時の外部通信を必要としません。縦書き教材に合わせ、左側の操作（左下の丸いボタン・左矢印）で次のページへ進み、紙面が左から右へめくれるようにしています。右側の操作は前のページへ戻ります。丸い目印は見た目だけではなく、直接押せるボタンです。録音パネルの「次のページ →」も同じ操作です。ページ番号は、教材登録時の順番で表示します。ライセンスは `vendor/page-flip-LICENSE.txt` を参照してください（MIT License、Copyright (c) 2020 Nodlik）。
